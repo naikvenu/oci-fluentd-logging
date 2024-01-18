@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      serviceAccountName: oci-la-fluentd-serviceaccount
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+     
+      containers:
+      - name: fluentd
+        image: <region>.ocir.io/<namespace>/<repo>/custom-logging-fluentd:latest 
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: config-volume
+          mountPath: /fluentd/etc
+        - name: oci-creds
+          mountPath: /root/.oci
+        - name: oci-keys
+          mountPath: /root/.oci/key
+        - name: varlog
+          mountPath: /var/log
+          # Mount all relevant locations depending on where the actual logs presents.
+        - name: dockercontainerlogdirectory
+          mountPath: /var/log/pods
+          readOnly: true
+        - name: dockercontainerdatadirectory
+          mountPath: /u01/data/docker/containers
+          readOnly: true
+      volumes:
+      - name: config-volume
+        configMap:
+          name: fluentd-config
+      - name: oci-creds
+        secret:
+          secretName: oci-creds
+      - name: oci-keys
+        secret:
+          secretName: oci-keys
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: dockercontainerlogdirectory
+        hostPath:
+          path: /var/log/pods
+      - name: dockercontainerdatadirectory
+        hostPath:
+          path: /u01/data/docker/containers
+      imagePullSecrets:
+        - name: ocirsecret
+

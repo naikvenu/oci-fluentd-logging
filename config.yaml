@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+data:
+  fluent.conf: |
+    
+    <source>
+      @type tail
+      path /var/log/containers/*.log
+      pos_file /var/log/fluentd-containers.log.pos
+      tag kubernetes.pods.*
+      exclude_path ["/var/log/containers/fluentd*"]
+      <parse>
+          format none  
+      </parse>
+    </source>
+
+
+    <match kubernetes.pods.**>
+      @type oci_logging
+      principal_override user
+      log_object_id ocid1.log.oc1.xxx # replace this line
+       <buffer>
+         @type                           file
+         path                            '/var/log/oci_logging_fluentd_outplugin/logs/buffer/'
+         flush_thread_count              1
+         chunk_limit_size                2m   # 2MB
+         total_limit_size                5368709120 # 5GB
+         flush_interval                  30 # seconds
+         flush_thread_interval           0.5
+         flush_thread_burst_interval     0.05
+         retry_wait                      2 # seconds
+         retry_max_times                 17
+         retry_exponential_backoff_base  2
+         retry_forever                   true
+         disable_chunk_backup            true
+        </buffer>
+    </match>
