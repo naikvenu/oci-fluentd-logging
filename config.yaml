@@ -11,9 +11,7 @@ data:
       pos_file /var/log/fluentd-containers.log.pos
       tag kubernetes.pods.*
       exclude_path ["/var/log/containers/fluentd*"]
-      <parse>
-          format none  
-      </parse>
+      format none
     </source>
 
 
