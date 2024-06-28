@@ -1,3 +1,8 @@
+Disclaimer:
+I work for Oracle and the views expressed on this documentation are my own and do not necessarily reflect the views of Oracle. 
+These instructions provided are for experimental purposes only and should not be used in production. You should always run any new procedure and scripts on a test environment and validate and modify the same as per your requirements before using on your application environment.
+
+
 # Deploying Fluentd as a Dameonset with OCI (Oracle Cloud Infrastructure) logging as backend for log management.
 
 # Build your docker image and push it to your tenancy OCIR registry
